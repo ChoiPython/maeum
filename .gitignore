@@ -1,0 +1,18 @@
+node_modules/
+dist/
+.env
+.env.*
+!.env.example
+*.log
+tmp/
+.codex_tmp/
+.codex/
+.agents/
+evaluation-private/
+test-results/
+playwright-report/
+
+# 원본은 로컬 보관. 공개용 사본은 기획자료/에 관리합니다.
+/마음정원_8팀_교수피드백반영_고도화계획서.md
+/마음정원_프로젝트계획서_본문_초안.md
+/마음정원_프로젝트계획서_양식맞춤_수정본.md

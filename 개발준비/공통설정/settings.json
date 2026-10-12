@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "reviewStatus": "draft",
+  "world": {
+    "units": "meter",
+    "upAxis": "Y",
+    "bounds": { "minX": -25, "maxX": 25, "minZ": -25, "maxZ": 25 },
+    "spawn": { "x": 0, "z": 18, "yaw": 0 },
+    "walkSpeedMps": 3,
+    "movementToleranceM": 0.5,
+    "camera": "fixed-angle-follow",
+    "zones": [
+      { "id": "entry", "label": "시작의 정원", "center": { "x": 0, "z": 18 }, "bounds": { "minX": -5, "maxX": 5, "minZ": 14, "maxZ": 23 } },
+      { "id": "forest", "label": "호흡의 숲", "center": { "x": -14, "z": -10 }, "bounds": { "minX": -23, "maxX": -5, "minZ": -21, "maxZ": 2 } },
+      { "id": "lake", "label": "비움의 호수", "center": { "x": 14, "z": -10 }, "bounds": { "minX": 5, "maxX": 23, "minZ": -21, "maxZ": 2 } },
+      { "id": "plaza", "label": "연결의 광장", "center": { "x": 0, "z": 8 }, "bounds": { "minX": -7, "maxX": 7, "minZ": 2, "maxZ": 13 } }
+    ]
+  },
+  "activities": {
+    "breathingDurationMs": 60000,
+    "visualPulsePeriodMs": 10000,
+    "leafAnimationDurationMs": 6000,
+    "fogDensityStart": 0.035,
+    "fogDensityEnd": 0.01
+  },
+  "network": {
+    "maxPlayers": 5,
+    "movementSendIntervalMs": 100,
+    "snapshotIntervalMs": 100,
+    "maxMovementEventsPerSecond": 15,
+    "supportCooldownMs": 5000,
+    "supportAckTimeoutMs": 3000,
+    "supportDisplayMs": 8000,
+    "requestCacheTtlMs": 60000,
+    "requestCacheMaxEntriesPerPlayer": 20,
+    "requestIdMaxLength": 64
+  },
+  "audio": { "initiallyMuted": true, "defaultVolume": 0.25 },
+  "targets": {
+    "guidedSessionMinMinutes": 5,
+    "guidedSessionMaxMinutes": 10,
+    "viewportWidth": 1366,
+    "viewportHeight": 768,
+    "averageFps": 30,
+    "measurementSecondsPerZone": 30,
+    "initialAssetBudgetMb": 15,
+    "singleGlbBudgetMb": 2,
+    "textureMaxPixels": 1024,
+    "evaluationMinParticipants": 15,
+    "evaluationMaxParticipants": 20,
+    "routeCompletionPercent": 80,
+    "usabilityMean": 4,
+    "satisfactionMean": 4
+  }
+}
