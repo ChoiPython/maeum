@@ -11,6 +11,7 @@ tmp/
 evaluation-private/
 test-results/
 playwright-report/
+.playwright-mcp/
 
 # 원본은 로컬 보관. 공개용 사본은 기획자료/에 관리합니다.
 /마음정원_8팀_교수피드백반영_고도화계획서.md

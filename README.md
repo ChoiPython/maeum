@@ -19,3 +19,53 @@
 Three.js·TypeScript·Vite, Node.js·Socket.IO를 사용합니다. 감정·고민·전후 응답은 브라우저 메모리에서 처리하며 서버에는 임시 아바타 위치와 허용된 응원 ID만 전달하도록 개발합니다.
 
 전문적인 진단·치료를 제공하지 않으며 활동은 선택적으로 참여합니다. 개발·평가 목표와 실제 검증 기록을 구분합니다.
+
+## 현재 구현: 1단계
+
+- 연결된 3구역, 기본 3D 정원, 고정 각도 추적 카메라와 WASD/방향키 이동
+- 감정 5종과 사전 상태 선택·건너뛰기·변경·새 체험 초기화
+- 감정별 추천과 미니맵·구역 안내
+- 자체 생성 GLB 나무 로딩과 기본 모양 대체
+- 최대 5명 접속 기반, 임시 아바타 위치 공유와 퇴장 정리
+- 서버 입력 검증, 실제 Socket.IO 통합 테스트와 GitHub Actions 검사
+
+호흡 타이머·안개/꽃, 고민 내려놓기, 선택형 응원 전달, 체크아웃은 다음 단계입니다. 화면에서도 현재 가능한 산책과 준비 중인 활동을 구분합니다.
+
+## 실행
+
+Node.js 22.14.0과 npm을 사용합니다. 처음 받은 저장소에서 루트 폴더를 열고 실행합니다.
+
+```bash
+git clone https://github.com/ChoiPython/maeum.git
+cd maeum
+npm ci
+npm run dev
+```
+
+PowerShell에서는 `npm.cmd ci`, `npm.cmd run dev`를 사용할 수 있습니다. 정원은 **http://127.0.0.1:5173/**, 서버 상태는 **http://127.0.0.1:3002/health**입니다. 실행 터미널의 Ctrl+C로 종료합니다. 서버 코드를 수정하면 `npm run dev`를 다시 시작하거나 별도 터미널에서 `npm run dev:server`의 watch 모드를 사용합니다.
+
+기존 PC 서비스와의 충돌을 피하도록 기본 서버 포트를 3002로 설정했습니다. 클라이언트는 같은 origin의 `/socket.io`를 사용하고 Vite가 서버로 전달합니다. 일반 개발에는 `.env` 작성이 필요 없습니다. 별도 서버를 쓸 때 각 앱의 `.env.example`을 참고합니다.
+
+## 검사와 빌드
+
+```bash
+npm run check
+```
+
+준비자료 검사, 클라이언트/서버 타입 검사, 6개 테스트, 양쪽 빌드를 실행합니다. 테스트에는 실제 독립 Socket.IO 접속의 입장·이동·퇴장·인원 제한이 포함됩니다.
+
+빌드 결과는 `apps/client/dist`, `apps/server/dist`에 생성합니다. 빌드한 서버는 `npm run start --workspace @maeum/server`, 웹 미리보기는 `npm run preview --workspace @maeum/client`로 각각 실행합니다. 외부 배포에는 실제 서버와 `/socket.io` reverse proxy/HTTPS 설정이 필요합니다.
+
+## 구현 구조
+
+```text
+apps/client/src/       UI, 정원 렌더링, 실시간 연결
+apps/server/src/       임시 정원 상태, 런타임 입력 검증, Socket.IO 서버
+shared/               실제 앱의 콘텐츠·숫자 설정·타입 계약
+docs/                 구현·검증 기록과 실행 화면
+개발준비/              최초 명세와 작업/테스트 관리자료
+```
+
+실행 설정의 단일 원본은 `shared/`입니다. `개발준비/공통설정/`은 최초 명세 스냅샷으로 보관합니다. 모델·음원 확보와 사용성/성능 평가는 앞으로 실제 결과를 기록합니다.
+
+![1단계 정원 화면](docs/stage-1-preview.png)

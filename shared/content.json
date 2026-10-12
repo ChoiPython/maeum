@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "reviewStatus": "draft",
+  "emotions": [
+    { "id": "anxiety", "label": "불안하고 긴장돼요", "recommendedZone": "forest", "guidance": "잠시 멈춰 빛의 움직임을 바라보며 쉬어보세요." },
+    { "id": "overloaded", "label": "생각이 많고 답답해요", "recommendedZone": "lake", "guidance": "고민을 하나 골라 나뭇잎에 담아 흘려보세요." },
+    { "id": "lonely", "label": "외롭고 연결이 필요해요", "recommendedZone": "plaza", "guidance": "가벼운 응원 한마디를 나누어보세요." },
+    { "id": "tired", "label": "지치고 쉬고 싶어요", "recommendedZone": "forest", "guidance": "천천히 쉬면서 나에게 편한 속도를 찾아보세요." },
+    { "id": "calm", "label": "편안하게 둘러보고 싶어요", "recommendedZone": null, "guidance": "마음이 가는 공간에서 잠시 머물러보세요." }
+  ],
+  "worries": [
+    { "id": "study", "label": "학업" },
+    { "id": "career", "label": "진로·취업" },
+    { "id": "relationships", "label": "대인관계" },
+    { "id": "financial", "label": "경제적 부담" },
+    { "id": "other", "label": "그 밖의 고민" },
+    { "id": "prefer_not_to_say", "label": "선택하지 않고 흘려보내기" }
+  ],
+  "supportMessages": [
+    { "id": "C01", "text": "잠시 쉬어가도 괜찮아요." },
+    { "id": "C02", "text": "오늘 여기까지 온 나를 응원해요." },
+    { "id": "C03", "text": "모든 걸 한 번에 해결하지 않아도 괜찮아요." },
+    { "id": "C04", "text": "내 속도로 천천히 걸어가요." },
+    { "id": "C05", "text": "오늘 나에게 작은 여유를 선물해요." },
+    { "id": "C06", "text": "이 정원에서 잠시 함께 쉬어가요." }
+  ],
+  "ratings": {
+    "tension": { "question": "지금 긴장되는 정도는 어느 정도인가요?", "lowLabel": "전혀 긴장되지 않음", "highLabel": "매우 긴장됨" },
+    "comfort": { "question": "지금 편안한 정도는 어느 정도인가요?", "lowLabel": "전혀 편안하지 않음", "highLabel": "매우 편안함" },
+    "min": 1,
+    "max": 5,
+    "noAnswerLabel": "응답 안 함"
+  },
+  "ui": {
+    "welcome": "마음정원은 잠시 쉬고 나의 상태를 돌아보는 공간이에요. 모든 활동은 건너뛰거나 종료할 수 있어요.",
+    "purpose": "일상적인 휴식과 감정 돌아보기를 위한 콘텐츠이며 전문적인 진단이나 치료를 제공하지 않습니다.",
+    "breathingGuide": "빛을 바라보며 편한 속도로 쉬어보세요. 속도를 맞추기 어렵다면 나의 호흡대로 쉬어도 괜찮아요.",
+    "breathingComplete": "60초 호흡 안내 활동을 마쳤어요.",
+    "paused": "안내가 잠시 멈췄어요. 준비되면 재개해주세요.",
+    "systemSupportLabel": "시스템 응원",
+    "visitorSupportLabel": "다른 방문자의 응원",
+    "supportAccepted": "응원 전송 요청이 접수되었어요.",
+    "supportUnknown": "전송 결과를 확인하지 못했어요. 다시 확인할 수 있어요.",
+    "offline": "공동 연결이 끊겼어요. 개인 활동은 계속 이용할 수 있어요.",
+    "roomFull": "함께 이용하는 정원이 가득 찼어요. 지금은 혼자 둘러볼 수 있어요.",
+    "noRecipient": "지금 광장에는 다른 방문자가 없어요. 시스템 응원을 볼 수 있어요.",
+    "result": "체험 전후 내가 선택한 상태예요. 감정이 그대로여도 괜찮아요.",
+    "noAnswer": "응답 없음",
+    "seed": "오늘의 방문을 기념하는 마음 씨앗이에요."
+  }
+}

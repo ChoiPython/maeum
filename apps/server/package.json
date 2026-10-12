@@ -1,0 +1,13 @@
+{
+  "name": "@maeum/server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc",
+    "start": "node dist/apps/server/src/index.js"
+  },
+  "dependencies": { "socket.io": "4.8.4" }
+}
