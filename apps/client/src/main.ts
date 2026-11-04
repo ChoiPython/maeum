@@ -38,7 +38,7 @@ app.innerHTML = `
       </section>
       <p class="quiet-note">활동은 준비 중이에요.<br>지금은 정원을 자유롭게 둘러볼 수 있어요.</p>
     </aside>
-    <footer class="control-guide"><span><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 또는 방향키로 이동</span><span>정원 화면을 누르면 산책을 이어갈 수 있어요</span></footer>
+    <footer class="control-guide"><span><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 또는 방향키로 이동</span><span>마우스 휠로 확대·축소 · 화면을 누르면 산책 계속</span></footer>
   </main>
   <dialog class="welcome-dialog" id="welcome" aria-labelledby="welcome-title">
     <span class="eyebrow">A LITTLE PAUSE, JUST FOR YOU</span><div class="welcome-symbol">✦</div>
@@ -79,7 +79,7 @@ try {
       lastZone = zone; get('zone-name').textContent = zoneLabel(zone); get('zone-description').textContent = descriptions[zone];
       if (['forest', 'lake', 'plaza'].includes(zone) && !session.visitedZones.includes(zone as 'forest' | 'lake' | 'plaza')) session.visitedZones.push(zone as 'forest' | 'lake' | 'plaza');
     }
-  }, (ready) => { if (!ready) showNotice('일부 나무를 불러오지 못해 기본 모양으로 보여드려요. 산책은 계속할 수 있어요.'); });
+  }, (ready) => { if (!ready) showNotice('일부 정원 모델을 불러오지 못했어요. 기본 모양으로 산책을 계속할 수 있어요.'); });
 } catch {
   get<HTMLButtonElement>('start').disabled = true;
   showNotice('3D 정원을 표시하지 못했어요. Chrome·Edge의 그래픽 가속과 WebGL 지원을 확인해주세요.');

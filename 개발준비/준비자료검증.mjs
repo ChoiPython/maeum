@@ -93,7 +93,7 @@ const testTable = parseCsv(await read('테스트케이스.csv'));
 const assetTable = parseCsv(await read('에셋목록.csv'));
 check(taskTable.rows.length === 30, '작업 개수');
 check(testTable.rows.length === 28, '테스트 개수');
-check(assetTable.rows.length === 12, '에셋 개수');
+check(assetTable.rows.length === 14, '에셋 개수');
 uniqueIds(taskTable.rows, '작업ID', '작업');
 uniqueIds(testTable.rows, '테스트ID', '테스트');
 uniqueIds(assetTable.rows, '에셋ID', '에셋');
@@ -154,7 +154,7 @@ if (failures.length) {
   const hours = {};
   for (const task of taskTable.rows) hours[task['담당자']] = (hours[task['담당자']] ?? 0) + Number(task['예상시간_h']);
   console.log(`준비자료 검사 통과: ${checks}개 조건`);
-  console.log('요구사항 20개 / 작업 30개 / 에셋 12개 / 테스트 28개');
+  console.log('요구사항 20개 / 작업 30개 / 에셋 14개 / 테스트 28개');
   console.log(`초기 예상 인시: ${JSON.stringify(hours)}`);
   console.log('앱 실행·전체 TypeScript 검사·네트워크·FPS·사용자 평가는 별도 검증이 필요합니다.');
 }

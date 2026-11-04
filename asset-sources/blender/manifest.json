@@ -1,0 +1,115 @@
+{
+  "schemaVersion": 1,
+  "generator": "Blender bpy",
+  "blenderVersion": "4.5.15 LTS",
+  "source": "asset-sources/blender/maeum-garden.blend",
+  "sourceSha256": "975114dc4fc400e5a9d3ebd45e9f89d9faf35cb5e39fca18b90965a0a6c3b8ba",
+  "units": "meter",
+  "runtimeUpAxis": "Y",
+  "assets": [
+    {
+      "id": "tree-canopy",
+      "file": "tree-canopy.glb",
+      "bytes": 78616,
+      "sourceMeshCount": 17,
+      "runtimeMeshCount": 1,
+      "triangles": 844,
+      "blenderDimensionsXYZ": [
+        3.6876,
+        3.1988,
+        4.8354
+      ]
+    },
+    {
+      "id": "tree-pine",
+      "file": "tree-pine.glb",
+      "bytes": 8564,
+      "sourceMeshCount": 4,
+      "runtimeMeshCount": 1,
+      "triangles": 76,
+      "blenderDimensionsXYZ": [
+        2.659,
+        2.6186,
+        3.775
+      ]
+    },
+    {
+      "id": "flower-patch",
+      "file": "flower-patch.glb",
+      "bytes": 175644,
+      "sourceMeshCount": 40,
+      "runtimeMeshCount": 1,
+      "triangles": 5980,
+      "blenderDimensionsXYZ": [
+        1.2921,
+        0.9614,
+        0.6221
+      ]
+    },
+    {
+      "id": "rock-cluster",
+      "file": "rock-cluster.glb",
+      "bytes": 11368,
+      "sourceMeshCount": 4,
+      "runtimeMeshCount": 1,
+      "triangles": 80,
+      "blenderDimensionsXYZ": [
+        1.8045,
+        1.2499,
+        0.9801
+      ]
+    },
+    {
+      "id": "garden-bench",
+      "file": "garden-bench.glb",
+      "bytes": 116616,
+      "sourceMeshCount": 15,
+      "runtimeMeshCount": 1,
+      "triangles": 1620,
+      "blenderDimensionsXYZ": [
+        2.08,
+        0.78,
+        1.325
+      ]
+    },
+    {
+      "id": "floating-leaf",
+      "file": "floating-leaf.glb",
+      "bytes": 14120,
+      "sourceMeshCount": 2,
+      "runtimeMeshCount": 1,
+      "triangles": 172,
+      "blenderDimensionsXYZ": [
+        0.5237,
+        0.9994,
+        0.0862
+      ]
+    },
+    {
+      "id": "garden-lantern",
+      "file": "garden-lantern.glb",
+      "bytes": 51156,
+      "sourceMeshCount": 8,
+      "runtimeMeshCount": 1,
+      "triangles": 688,
+      "blenderDimensionsXYZ": [
+        0.5091,
+        0.5091,
+        2.0
+      ]
+    },
+    {
+      "id": "garden-visitor",
+      "file": "garden-visitor.glb",
+      "bytes": 55448,
+      "sourceMeshCount": 14,
+      "runtimeMeshCount": 1,
+      "triangles": 1560,
+      "blenderDimensionsXYZ": [
+        0.83,
+        0.68,
+        1.58
+      ]
+    }
+  ]
+}

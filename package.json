@@ -13,7 +13,8 @@
     "build": "npm run build --workspaces",
     "test": "tsx --test apps/server/test/garden.test.ts",
     "check:docs": "node 개발준비/준비자료검증.mjs",
-    "check": "npm run check:docs && npm run typecheck && npm test && npm run build"
+    "check:models": "node scripts/check-blender-assets.mjs",
+    "check": "npm run check:docs && npm run check:models && npm run typecheck && npm test && npm run build"
   },
   "devDependencies": {
     "@types/node": "22.18.6",

@@ -25,7 +25,7 @@ Three.js·TypeScript·Vite, Node.js·Socket.IO를 사용합니다. 감정·고�
 - 연결된 3구역, 기본 3D 정원, 고정 각도 추적 카메라와 WASD/방향키 이동
 - 감정 5종과 사전 상태 선택·건너뛰기·변경·새 체험 초기화
 - 감정별 추천과 미니맵·구역 안내
-- 자체 생성 GLB 나무 로딩과 기본 모양 대체
+- Blender에서 제작한 모델 8종 로딩·반복 배치와 기본 모양 대체
 - 최대 5명 접속 기반, 임시 아바타 위치 공유와 퇴장 정리
 - 서버 입력 검증, 실제 Socket.IO 통합 테스트와 GitHub Actions 검사
 
@@ -66,6 +66,19 @@ docs/                 구현·검증 기록과 실행 화면
 개발준비/              최초 명세와 작업/테스트 관리자료
 ```
 
-실행 설정의 단일 원본은 `shared/`입니다. `개발준비/공통설정/`은 최초 명세 스냅샷으로 보관합니다. 모델·음원 확보와 사용성/성능 평가는 앞으로 실제 결과를 기록합니다.
+실행 설정의 단일 원본은 `shared/`입니다. `개발준비/공통설정/`은 최초 명세 스냅샷으로 보관합니다. Blender 모델 적용 내역은 아래에 있으며, 음향·사용성·성능 평가는 앞으로 실제 결과를 기록합니다.
+
+## Blender 모델 적용 · 2026.11.04
+
+Blender 4.5.15 LTS에서 활엽수·침엽수·꽃밭·바위·벤치·나뭇잎·등불·방문자 8종을 제작하고 실제 정원에 적용했습니다. 정원 장식은 70곳에 배치하며 로컬/원격 방문자에도 Blender 모델을 사용합니다. 마우스 휠로 확대해 모델을 살펴볼 수 있습니다.
+
+- 원본: [maeum-garden.blend](asset-sources/blender/maeum-garden.blend)
+- 제작·편집·재내보내기: [Blender 작업 안내](asset-sources/blender/README.md)
+- 실행 모델: [GLB와 제작 정보](apps/client/public/assets/models/blender/)
+- 검사: `npm run check:models` (전체 `npm run check`에도 포함)
+
+원본은 Collection과 부품 메시를 유지하고, 웹용 GLB는 복사본의 메시를 합쳐 내보냅니다. 호흡·호수 활동·응원·체크아웃은 기존의 다음 단계로 남아 있습니다.
+
+![Blender 모델을 적용한 정원](docs/blender-garden-preview.png)
 
 ![1단계 정원 화면](docs/stage-1-preview.png)
