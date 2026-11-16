@@ -5,10 +5,11 @@
     "units": "meter",
     "upAxis": "Y",
     "bounds": { "minX": -25, "maxX": 25, "minZ": -25, "maxZ": 25 },
-    "spawn": { "x": 0, "z": 18, "yaw": 0 },
+    "spawn": { "x": 0, "z": 18, "yaw": 3.141592653589793 },
     "walkSpeedMps": 3,
+    "runSpeedMps": 6,
     "movementToleranceM": 0.5,
-    "camera": "fixed-angle-follow",
+    "camera": { "followFov": 42, "firstPersonFov": 65, "eyeHeightM": 1.25 },
     "zones": [
       { "id": "entry", "label": "시작의 정원", "center": { "x": 0, "z": 18 }, "bounds": { "minX": -5, "maxX": 5, "minZ": 14, "maxZ": 23 } },
       { "id": "forest", "label": "호흡의 숲", "center": { "x": -14, "z": -10 }, "bounds": { "minX": -23, "maxX": -5, "minZ": -21, "maxZ": 2 } },

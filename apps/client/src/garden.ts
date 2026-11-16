@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { BlenderModels, disposeObjectResources, type BlenderAssetId } from './blender-models.js';
-import { settings, isWalkable, zoneAt } from '../../../shared/runtime.js';
+import { GardenNavigation } from './navigation.js';
+import { settings, zoneAt } from '../../../shared/runtime.js';
 import type { AvatarMove, GardenSnapshot, ZoneId } from '../../../shared/contracts.js';
 
 const makeMaterial = (color: string) => new THREE.MeshStandardMaterial({ color, roughness: 0.9, flatShading: true });
@@ -58,26 +59,23 @@ interface Placement {
 export class GardenView {
   private scene = new THREE.Scene();
   private renderer: THREE.WebGLRenderer;
-  private camera = new THREE.PerspectiveCamera(42, window.innerWidth / window.innerHeight, 0.1, 180);
+  private camera = new THREE.PerspectiveCamera(settings.world.camera.followFov, window.innerWidth / window.innerHeight, 0.1, 180);
   private player = avatar('#355e4b');
   private remotes = new Map<string, { group: THREE.Group; target: THREE.Vector3 }>();
-  private keys = new Set<string>();
+  readonly navigation: GardenNavigation;
   private zone: ZoneId = 'entry';
-  private enabled = false;
   private previous = performance.now();
   private frame = 0;
   private disposed = false;
   private models = new BlenderModels();
+  private signs: THREE.Sprite[] = [];
   private modelRoot = new THREE.Group();
   private placements: Placement[] = [];
-  private zoom = 1;
-  private direction = new THREE.Vector2();
-  private cameraTarget = new THREE.Vector3();
   private fpsFrames = 0;
   private fpsStartedAt = performance.now();
   private callback: (position: Omit<AvatarMove, 'seq'>, zone: ZoneId) => void;
 
-  constructor(private canvas: HTMLCanvasElement, onMove: GardenView['callback'], onAsset: (ready: boolean) => void) {
+  constructor(private canvas: HTMLCanvasElement, onMove: GardenView['callback'], onAsset: (ready: boolean) => void, onView: (firstPerson: boolean) => void) {
     this.callback = onMove;
     this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
@@ -101,16 +99,16 @@ export class GardenView {
     this.scene.add(this.modelRoot);
     this.buildGarden();
     this.scene.add(this.player);
-    this.resetPlayer();
-    this.camera.position.set(0, 25, 48);
-    this.camera.lookAt(0, 0, 6);
-    window.addEventListener('keydown', this.keyDown);
-    window.addEventListener('keyup', this.keyUp);
-    window.addEventListener('blur', this.clearKeys);
-    document.addEventListener('visibilitychange', this.clearKeys);
+    this.navigation = new GardenNavigation(canvas, this.player, this.camera, (firstPerson) => {
+      for (const sign of this.signs) {
+        const width = firstPerson ? 3 : 7.5;
+        sign.scale.set(width, width * 0.22, 1);
+        sign.material.depthTest = firstPerson;
+      }
+      onView(firstPerson);
+    });
+    this.navigation.respawn();
     window.addEventListener('resize', this.resize);
-    this.canvas.addEventListener('pointerdown', this.focus);
-    this.canvas.addEventListener('wheel', this.wheel, { passive: false });
     this.canvas.dataset.model = 'loading';
     this.models.load().then((failed) => {
       if (this.disposed) return;
@@ -198,21 +196,9 @@ export class GardenView {
     for (const { id, label: text, center } of settings.world.zones) {
       if (id === 'entry') continue;
       const sign = label(text); sign.position.set(center.x, id === 'forest' ? 6 : 3.5, center.z); this.scene.add(sign);
+      this.signs.push(sign);
     }
   }
-  private keyDown = (event: KeyboardEvent) => {
-    if (!this.enabled || document.visibilityState !== 'visible' || document.querySelector('dialog[open]')) return;
-    if (document.activeElement && /^(INPUT|SELECT|TEXTAREA|BUTTON)$/.test(document.activeElement.tagName)) return;
-    if (/^(Key[WASD]|Arrow(Up|Down|Left|Right))$/.test(event.code)) { event.preventDefault(); this.keys.add(event.code); }
-  };
-  private keyUp = (event: KeyboardEvent) => { this.keys.delete(event.code); };
-  private clearKeys = () => { this.keys.clear(); };
-  private focus = () => { this.canvas.focus({ preventScroll: true }); };
-  private wheel = (event: WheelEvent) => {
-    if (!this.enabled || document.querySelector('dialog[open]')) return;
-    event.preventDefault();
-    this.zoom = THREE.MathUtils.clamp(this.zoom * Math.exp(event.deltaY * 0.001), 0.5, 1.4);
-  };
   private resize = () => {
     this.camera.aspect = window.innerWidth / window.innerHeight;
     this.camera.updateProjectionMatrix(); this.renderer.setSize(window.innerWidth, window.innerHeight);
@@ -222,26 +208,17 @@ export class GardenView {
     this.frame = requestAnimationFrame(this.animate);
     const now = performance.now();
     const delta = Math.min((now - this.previous) / 1000, 0.08); this.previous = now;
-    if (this.enabled && document.visibilityState === 'visible') {
-      const x = Number(this.keys.has('KeyD') || this.keys.has('ArrowRight')) - Number(this.keys.has('KeyA') || this.keys.has('ArrowLeft'));
-      const z = Number(this.keys.has('KeyS') || this.keys.has('ArrowDown')) - Number(this.keys.has('KeyW') || this.keys.has('ArrowUp'));
-      const direction = this.direction.set(x, z).normalize();
-      const step = settings.world.walkSpeedMps * delta;
-      const nextX = this.player.position.x + direction.x * step;
-      const nextZ = this.player.position.z + direction.y * step;
-      if (isWalkable(nextX, this.player.position.z)) this.player.position.x = nextX;
-      if (isWalkable(this.player.position.x, nextZ)) this.player.position.z = nextZ;
-      if (x || z) this.player.rotation.y = Math.atan2(x, z);
-    }
+    this.navigation.update(delta);
     const { x, z } = this.player.position;
     this.zone = zoneAt(x, z);
     this.canvas.dataset.zone = this.zone;
     this.canvas.dataset.playerX = x.toFixed(2); this.canvas.dataset.playerZ = z.toFixed(2);
     this.callback({ x, z, yaw: this.player.rotation.y }, this.zone);
-    const cameraTarget = this.cameraTarget.set(x, 25 * this.zoom, z + 30 * this.zoom);
-    this.camera.position.lerp(cameraTarget, 1 - Math.exp(-3 * delta));
-    this.camera.lookAt(x, 0, z - 7);
-    for (const { group, target } of this.remotes.values()) group.position.lerp(target, 1 - Math.exp(-12 * delta));
+    for (const { group, target } of this.remotes.values()) {
+      group.position.lerp(target, 1 - Math.exp(-12 * delta));
+      // Visitors share the spawn point. Keep nearby hats and faces out of the eye-level camera.
+      group.visible = this.player.visible || group.position.distanceToSquared(this.player.position) > 0.75 ** 2;
+    }
     this.renderer.render(this.scene, this.camera);
     this.canvas.dataset.drawCalls = String(this.renderer.info.render.calls);
     this.canvas.dataset.triangles = String(this.renderer.info.render.triangles);
@@ -251,8 +228,6 @@ export class GardenView {
       this.fpsFrames = 0; this.fpsStartedAt = now;
     }
   };
-  setEnabled(enabled: boolean) { this.enabled = enabled; this.clearKeys(); if (enabled) this.focus(); }
-  resetPlayer() { this.player.position.set(settings.world.spawn.x, 0, settings.world.spawn.z); this.player.rotation.y = 0; this.clearKeys(); }
   snapshot(snapshot: GardenSnapshot, selfId: string) {
     const present = new Set<string>();
     for (const player of snapshot.players) {
@@ -303,10 +278,8 @@ export class GardenView {
   }
   dispose() {
     this.disposed = true; cancelAnimationFrame(this.frame);
-    window.removeEventListener('keydown', this.keyDown); window.removeEventListener('keyup', this.keyUp);
-    window.removeEventListener('blur', this.clearKeys); window.removeEventListener('resize', this.resize);
-    document.removeEventListener('visibilitychange', this.clearKeys); this.canvas.removeEventListener('pointerdown', this.focus);
-    this.canvas.removeEventListener('wheel', this.wheel);
+    this.navigation.dispose();
+    window.removeEventListener('resize', this.resize);
     disposeObjectResources(this.scene); this.models.dispose(); this.renderer.dispose();
   }
 }

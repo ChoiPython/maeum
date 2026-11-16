@@ -44,6 +44,17 @@ test('이동의 유한값·추가 필드·순서·과속·호수 진입을 검�
   ]) assert.equal(room.move('a', move, 1200), 'INVALID_PAYLOAD');
   assert.equal(room.snapshot().players[0].z, 17.8);
 });
+test('연속 달리기와 제자리 회전은 공유하고 이동 한도를 넘으면 거절한다', () => {
+  const room = new GardenRoom();
+  room.join('runner', {}, 1000);
+  for (let tick = 1; tick <= 4; tick++) {
+    const move = { x: 0, z: 18 - 1.5 * tick, yaw: Math.PI, seq: tick };
+    assert.equal(room.move('runner', move, 1000 + 250 * tick), null);
+  }
+  assert.equal(room.move('runner', { x: 0, z: 12, yaw: 0.7, seq: 11 }, 2100), null);
+  assert.equal(room.move('runner', { x: 0, z: 10, yaw: 0.7, seq: 12 }, 2200), 'INVALID_PAYLOAD');
+  assert.deepEqual(room.snapshot().players[0], { id: 'runner', x: 0, z: 12, yaw: 0.7, zone: 'plaza' });
+});
 test('너무 빈번한 이동은 거절한다', () => {
   const room = new GardenRoom();
   room.join('a', {}, 1000);

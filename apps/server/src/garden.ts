@@ -43,7 +43,7 @@ export class GardenRoom {
     entry.events += 1;
     if (entry.events > settings.network.maxMovementEventsPerSecond) return 'RATE_LIMITED';
     const elapsed = Math.max(0, (now - entry.lastMoveAt) / 1000);
-    const limit = elapsed * settings.world.walkSpeedMps + settings.world.movementToleranceM;
+    const limit = elapsed * settings.world.runSpeedMps + settings.world.movementToleranceM;
     if (Math.hypot(x - entry.player.x, z - entry.player.z) > limit) return 'INVALID_PAYLOAD';
     entry.player = { id, x, z, yaw, zone: zoneAt(x, z) };
     entry.seq = seq;

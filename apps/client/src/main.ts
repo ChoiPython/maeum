@@ -24,7 +24,7 @@ app.innerHTML = `
   </header>
   <main class="garden-ui" hidden id="hud">
     <section class="location-card"><span class="eyebrow">지금 머무는 곳</span><h1 id="zone-name">시작의 정원</h1><p id="zone-description">마음이 가는 길을 천천히 걸어보세요.</p></section>
-    <aside class="side-panel" aria-label="정원 안내">
+    <aside id="garden-panel" class="side-panel" aria-label="정원 안내">
       <section class="recommendation"><span class="eyebrow" id="recommendation-label">오늘의 작은 산책</span><h2 id="recommendation-title">마음이 가는 곳으로</h2><p id="recommendation-text">세 공간을 자유롭게 둘러보세요.</p><button class="text-button" id="change-emotion">감정 다시 선택</button></section>
       <section class="map-section"><div class="section-title"><h2>정원 지도</h2><span>길을 골라보세요</span></div>
         <div class="mini-map" aria-label="정원 구역 지도">
@@ -38,7 +38,12 @@ app.innerHTML = `
       </section>
       <p class="quiet-note">활동은 준비 중이에요.<br>지금은 정원을 자유롭게 둘러볼 수 있어요.</p>
     </aside>
-    <footer class="control-guide"><span><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 또는 방향키로 이동</span><span>마우스 휠로 확대·축소 · 화면을 누르면 산책 계속</span></footer>
+    <footer class="control-guide" aria-label="산책 조작">
+      <span><kbd>WASD</kbd> 이동 · <kbd>Shift</kbd> 달리기</span>
+      <span id="look-guide">방향키 이동 · 휠 확대</span>
+      <button id="perspective" type="button" aria-label="1인칭 시점" aria-pressed="false" aria-keyshortcuts="V"><kbd>V</kbd> 1인칭</button>
+      <button id="panel-toggle" type="button" aria-controls="garden-panel" aria-expanded="true">안내 접기</button>
+    </footer>
   </main>
   <dialog class="welcome-dialog" id="welcome" aria-labelledby="welcome-title">
     <span class="eyebrow">A LITTLE PAUSE, JUST FOR YOU</span><div class="welcome-symbol">✦</div>
@@ -75,11 +80,15 @@ try {
     connection?.move(position);
     get('map-player').style.left = `${(position.x + 25) * 2}%`;
     get('map-player').style.top = `${(position.z + 25) * 2}%`;
+    get('map-player').style.rotate = `${Math.PI - position.yaw}rad`;
     if (zone !== lastZone) {
       lastZone = zone; get('zone-name').textContent = zoneLabel(zone); get('zone-description').textContent = descriptions[zone];
       if (['forest', 'lake', 'plaza'].includes(zone) && !session.visitedZones.includes(zone as 'forest' | 'lake' | 'plaza')) session.visitedZones.push(zone as 'forest' | 'lake' | 'plaza');
     }
-  }, (ready) => { if (!ready) showNotice('일부 정원 모델을 불러오지 못했어요. 기본 모양으로 산책을 계속할 수 있어요.'); });
+  }, (ready) => { if (!ready) showNotice('일부 정원 모델을 불러오지 못했어요. 기본 모양으로 산책을 계속할 수 있어요.'); }, (firstPerson) => {
+    get('perspective').setAttribute('aria-pressed', String(firstPerson));
+    get('look-guide').textContent = firstPerson ? '드래그로 둘러보기 · ← → 회전' : '방향키 이동 · 휠 확대';
+  });
 } catch {
   get<HTMLButtonElement>('start').disabled = true;
   showNotice('3D 정원을 표시하지 못했어요. Chrome·Edge의 그래픽 가속과 WebGL 지원을 확인해주세요.');
@@ -104,12 +113,19 @@ function enterGarden() {
     connection = new GardenConnection((status, count) => {
       get('connection').dataset.status = status;
       get('connection').textContent = status === 'online' ? `함께 걷는 ${count}명` : status === 'connecting' ? '정원 연결 중' : status === 'full' ? '정원이 가득 찼어요 · 개인 산책' : '연결 끊김 · 개인 산책 가능';
-    }, (snapshot, selfId) => view.snapshot(snapshot, selfId), () => view.resetPlayer());
+    }, (snapshot, selfId) => view.snapshot(snapshot, selfId), () => view.navigation.respawn());
   }
-  view.setEnabled(true);
+  view.navigation.setEnabled(true);
 }
+function showGardenPanel(visible: boolean) {
+  get('garden-panel').hidden = !visible;
+  get('panel-toggle').setAttribute('aria-expanded', String(visible));
+  get('panel-toggle').textContent = visible ? '안내 접기' : '안내 펼치기';
+}
+get('perspective').addEventListener('click', () => view.navigation.togglePerspective());
+get('panel-toggle').addEventListener('click', () => showGardenPanel(get('garden-panel').hidden));
 function openCheckin() {
-  view?.setEnabled(false);
+  view?.navigation.setEnabled(false);
   for (const input of document.querySelectorAll<HTMLInputElement>('input[name="emotion"]')) input.checked = input.value === session.emotionId;
   get<HTMLSelectElement>('tension').value = session.before.tension?.toString() ?? '';
   get<HTMLSelectElement>('comfort').value = session.before.comfort?.toString() ?? '';
@@ -132,7 +148,8 @@ checkin.addEventListener('cancel', (event) => { event.preventDefault(); get('ski
 welcome.addEventListener('cancel', (event) => { event.preventDefault(); enterGarden(); });
 get('reset').addEventListener('click', () => {
   connection?.dispose(); connection = null; entered = false; session = initialSession();
-  view?.snapshot({ players: [], serverTimeMs: Date.now() }, ''); view?.resetPlayer(); view?.setEnabled(false);
+  view?.snapshot({ players: [], serverTimeMs: Date.now() }, ''); view?.navigation.setEnabled(false);
+  view?.navigation.reset(); showGardenPanel(true);
   get('hud').hidden = true; get('connection').textContent = '혼자 둘러보는 정원';
   welcome.showModal();
 });
