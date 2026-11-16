@@ -1,5 +1,7 @@
 import * as THREE from 'three';
 import { BlenderModels, disposeObjectResources, type BlenderAssetId } from './blender-models.js';
+import { ForestGlade } from './forest-glade.js';
+import type { ForestBreathing } from './forest-breathing.js';
 import { GardenNavigation } from './navigation.js';
 import { settings, zoneAt } from '../../../shared/runtime.js';
 import type { AvatarMove, GardenSnapshot, ZoneId } from '../../../shared/contracts.js';
@@ -69,13 +71,16 @@ export class GardenView {
   private disposed = false;
   private models = new BlenderModels();
   private signs: THREE.Sprite[] = [];
+  private visitors = new THREE.Group();
+  private forest = new ForestGlade();
+  private forestFocus = false;
   private modelRoot = new THREE.Group();
   private placements: Placement[] = [];
   private fpsFrames = 0;
   private fpsStartedAt = performance.now();
   private callback: (position: Omit<AvatarMove, 'seq'>, zone: ZoneId) => void;
 
-  constructor(private canvas: HTMLCanvasElement, onMove: GardenView['callback'], onAsset: (ready: boolean) => void, onView: (firstPerson: boolean) => void) {
+  constructor(private canvas: HTMLCanvasElement, private breathing: ForestBreathing, onMove: GardenView['callback'], onAsset: (ready: boolean) => void, onView: (firstPerson: boolean) => void) {
     this.callback = onMove;
     this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
@@ -98,7 +103,9 @@ export class GardenView {
     this.modelRoot.name = 'Blender_Garden_Instances';
     this.scene.add(this.modelRoot);
     this.buildGarden();
-    this.scene.add(this.player);
+    this.scene.add(this.forest.root, this.visitors);
+    this.visitors.add(this.player);
+    this.forest.resize(this.camera.aspect);
     this.navigation = new GardenNavigation(canvas, this.player, this.camera, (firstPerson) => {
       for (const sign of this.signs) {
         const width = firstPerson ? 3 : 7.5;
@@ -121,6 +128,8 @@ export class GardenView {
         this.modelRoot.add(model);
         if (placement.fallback) placement.fallback.visible = false;
       }
+      const flowers = this.models.create('flower-patch');
+      if (flowers) this.forest.addFlowerPatch(flowers);
       this.replaceAvatar(this.player, '#355e4b');
       for (const remote of this.remotes.values()) this.replaceAvatar(remote.group, '#b38a60');
       this.renderer.shadowMap.needsUpdate = true;
@@ -199,8 +208,14 @@ export class GardenView {
       this.signs.push(sign);
     }
   }
+  setForestFocus(focused: boolean) {
+    this.forestFocus = focused;
+    this.visitors.visible = !focused;
+    this.signs.forEach(sign => { sign.visible = !focused; });
+  }
   private resize = () => {
     this.camera.aspect = window.innerWidth / window.innerHeight;
+    this.forest.resize(this.camera.aspect);
     this.camera.updateProjectionMatrix(); this.renderer.setSize(window.innerWidth, window.innerHeight);
   };
   private animate = () => {
@@ -219,7 +234,10 @@ export class GardenView {
       // Visitors share the spawn point. Keep nearby hats and faces out of the eye-level camera.
       group.visible = this.player.visible || group.position.distanceToSquared(this.player.position) > 0.75 ** 2;
     }
-    this.renderer.render(this.scene, this.camera);
+    const center = this.forest.root.position;
+    this.forest.update(this.breathing, delta, Math.hypot(x - center.x, z - center.z), this.forestFocus, !this.player.visible,
+      this.scene.background as THREE.Color, this.scene.fog as THREE.FogExp2);
+    this.renderer.render(this.scene, this.forestFocus ? this.forest.camera : this.camera);
     this.canvas.dataset.drawCalls = String(this.renderer.info.render.calls);
     this.canvas.dataset.triangles = String(this.renderer.info.render.triangles);
     this.fpsFrames += 1;
@@ -236,12 +254,12 @@ export class GardenView {
       let remote = this.remotes.get(player.id);
       if (!remote) {
         const group = avatar('#b38a60'); this.replaceAvatar(group, '#b38a60'); group.position.set(player.x, 0, player.z);
-        remote = { group, target: group.position.clone() }; this.remotes.set(player.id, remote); this.scene.add(group);
+        remote = { group, target: group.position.clone() }; this.remotes.set(player.id, remote); this.visitors.add(group);
       }
       remote.target.set(player.x, 0, player.z); remote.group.rotation.y = player.yaw;
     }
     for (const [id, remote] of this.remotes) {
-      if (!present.has(id)) { this.scene.remove(remote.group); this.releaseAvatar(remote.group); this.remotes.delete(id); }
+      if (!present.has(id)) { this.visitors.remove(remote.group); this.releaseAvatar(remote.group); this.remotes.delete(id); }
     }
     this.canvas.dataset.remoteCount = String(this.remotes.size);
   }
@@ -278,7 +296,7 @@ export class GardenView {
   }
   dispose() {
     this.disposed = true; cancelAnimationFrame(this.frame);
-    this.navigation.dispose();
+    this.navigation.dispose(); this.forest.dispose();
     window.removeEventListener('resize', this.resize);
     disposeObjectResources(this.scene); this.models.dispose(); this.renderer.dispose();
   }

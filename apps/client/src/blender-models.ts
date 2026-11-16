@@ -49,6 +49,7 @@ export function disposeObjectResources(root: THREE.Object3D) {
   const materials = new Set<THREE.Material>();
   const textures = new Set<THREE.Texture>();
   root.traverse((object) => {
+    if (object instanceof THREE.InstancedMesh) object.dispose();
     if (object instanceof THREE.Mesh) geometries.add(object.geometry);
     if (object instanceof THREE.Mesh || object instanceof THREE.Sprite) {
       for (const material of Array.isArray(object.material) ? object.material : [object.material]) {

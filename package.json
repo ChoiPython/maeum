@@ -11,7 +11,7 @@
     "dev:server": "npm run dev --workspace @maeum/server",
     "typecheck": "npm run typecheck --workspaces",
     "build": "npm run build --workspaces",
-    "test": "tsx --test apps/server/test/garden.test.ts",
+    "test": "tsx --test apps/server/test/garden.test.ts apps/client/test/forest-breathing.test.ts",
     "check:docs": "node 개발준비/준비자료검증.mjs",
     "check:models": "node scripts/check-blender-assets.mjs",
     "check": "npm run check:docs && npm run check:models && npm run typecheck && npm test && npm run build"
